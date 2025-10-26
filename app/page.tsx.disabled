@@ -1,0 +1,183 @@
+import { Leaf, Plane, Calculator, Globe, TrendingUp, Users, ArrowRight, CheckCircle, Zap, Wind } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Hero Section */}
+      <section className="max-w-6xl mx-auto px-6 py-20 text-center">
+        <div className="mb-8">
+          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Leaf className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-6">
+            EcoAir Initiative
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-8">
+            Making aviation sustainable, one flight at a time. Calculate your environmental impact and support verified
+            green projects across India.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/calculator">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 h-12 px-8 text-lg"
+              >
+                <Calculator className="mr-2 h-5 w-5" />
+                Calculate Impact
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="h-12 px-8 text-lg bg-transparent">
+              Learn More
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Section */}
+      <section className="bg-slate-100 py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center mb-12 text-slate-800">The Problem</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <Plane className="w-12 h-12 text-blue-600 mb-4" />
+                <h3 className="text-xl font-bold mb-3">Aviation Emissions</h3>
+                <p className="text-slate-600">
+                  Aviation accounts for 2-3% of global carbon emissions and is growing rapidly.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <Globe className="w-12 h-12 text-green-600 mb-4" />
+                <h3 className="text-xl font-bold mb-3">Climate Impact</h3>
+                <p className="text-slate-600">
+                  Each flight contributes significantly to climate change and environmental degradation.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <TrendingUp className="w-12 h-12 text-orange-600 mb-4" />
+                <h3 className="text-xl font-bold mb-3">Growing Demand</h3>
+                <p className="text-slate-600">
+                  Air travel demand is increasing, making sustainable solutions more critical than ever.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center mb-12 text-slate-800">How It Works</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              { step: 1, title: "Enter Flight Details", desc: "Provide your departure, destination, and flight class" },
+              { step: 2, title: "Calculate Impact", desc: "We compute your flight's CO2 emissions accurately" },
+              { step: 3, title: "Pay EcoFee", desc: "Support green projects with your environmental contribution" },
+              { step: 4, title: "Track Impact", desc: "See how your contribution makes a real difference" },
+            ].map((item) => (
+              <div key={item.step} className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg">
+                  {item.step}
+                </div>
+                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-slate-600 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="bg-gradient-to-r from-green-50 to-blue-50 py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center mb-12 text-slate-800">Why Choose EcoAir?</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            {[
+              {
+                icon: CheckCircle,
+                title: "Verified Projects",
+                desc: "All offset projects are independently verified and audited",
+              },
+              { icon: Zap, title: "Instant Impact", desc: "See real-time tracking of your environmental contribution" },
+              {
+                icon: Wind,
+                title: "Carbon Neutral",
+                desc: "Make your flights carbon neutral with our comprehensive program",
+              },
+              {
+                icon: Users,
+                title: "Community Driven",
+                desc: "Join thousands of conscious travelers making a difference",
+              },
+            ].map((item, idx) => (
+              <div key={idx} className="flex gap-4">
+                <item.icon className="w-8 h-8 text-green-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                  <p className="text-slate-600">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 text-center">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-4xl font-bold mb-6 text-slate-800">Ready to Make a Difference?</h2>
+          <p className="text-xl text-slate-600 mb-8">
+            Calculate your flight's environmental impact and join the sustainable aviation movement today.
+          </p>
+          <Link href="/calculator">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 h-12 px-8 text-lg"
+            >
+              Start Calculating
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-16">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+              <Leaf className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-2xl font-bold">EcoAir Initiative</span>
+          </div>
+          <p className="text-slate-300 mb-8">Making aviation sustainable, one flight at a time.</p>
+          <div className="grid md:grid-cols-3 gap-8 text-sm mb-8">
+            <div>
+              <h4 className="font-semibold mb-2">Contact</h4>
+              <p className="text-slate-400">info@ecoairinitiative.com</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">Follow Progress</h4>
+              <p className="text-slate-400">Join our sustainability journey</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">Partnership</h4>
+              <p className="text-slate-400">Airports & Airlines welcome</p>
+            </div>
+          </div>
+          <div className="border-t border-slate-700 pt-8">
+            <p className="text-slate-500">&copy; 2025 EcoAir Initiative. Building a greener future for aviation.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
