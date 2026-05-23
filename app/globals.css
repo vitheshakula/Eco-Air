@@ -133,3 +133,41 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
+
+.stratos-map {
+  background: #020617;
+  filter: saturate(0.82) contrast(1.05) brightness(0.78);
+}
+
+.stratos-map .leaflet-tile {
+  filter: saturate(0.78) brightness(0.78) hue-rotate(8deg);
+}
+
+.stratos-map .leaflet-tooltip {
+  border: 1px solid rgb(103 232 249 / 0.2);
+  border-radius: 999px;
+  background: rgb(2 6 23 / 0.88);
+  color: rgb(207 250 254);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 0.28);
+}
+
+.stratos-map .leaflet-tooltip::before {
+  display: none;
+}
+
+.stratos-route-marker {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(103 232 249 / 0.1);
+  box-shadow: 0 0 0 1px rgb(103 232 249 / 0.32), 0 0 28px rgb(34 211 238 / 0.34);
+}
+
+.stratos-route-marker-core {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a7f3d0, #67e8f9);
+  box-shadow: 0 0 18px rgb(103 232 249 / 0.7);
+}

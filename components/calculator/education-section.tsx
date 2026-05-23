@@ -1,56 +1,43 @@
 "use client"
-import { Card, CardContent } from "@/components/ui/card"
-import { Plane, Globe, TreePine, Zap } from "lucide-react"
+
+import { PremiumCard } from "@/components/dashboard/premium-card"
+import { Globe, Plane, TreePine, Zap } from "lucide-react"
 
 export default function EducationSection() {
+  const items = [
+    {
+      icon: Plane,
+      title: "Route intelligence",
+      copy: "Airport coordinates create a realistic great-circle distance before class and distance assumptions are applied.",
+    },
+    {
+      icon: Globe,
+      title: "Passenger footprint",
+      copy: "The estimate represents one passenger's share of route emissions, making the suggested contribution easier to understand.",
+    },
+    {
+      icon: TreePine,
+      title: "Climate context",
+      copy: "Tree-year and renewable-energy equivalents translate CO2 into tangible sustainability comparisons.",
+    },
+    {
+      icon: Zap,
+      title: "Capped contribution",
+      copy: "The participation range is capped by cabin class and split across tree planting, renewable energy, and efficiency projects.",
+    },
+  ]
+
   return (
-    <div className="max-w-5xl mx-auto">
-      <h2 className="text-3xl font-bold text-center mb-12 text-slate-800">Understanding Aviation Emissions</h2>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-8">
-            <Plane className="w-12 h-12 text-blue-600 mb-4" />
-            <h3 className="text-xl font-bold mb-3">How We Calculate</h3>
-            <p className="text-slate-600">
-              We use the Haversine formula to calculate exact distances between airports, then apply industry-standard
-              emission factors based on aircraft type and fuel consumption.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-8">
-            <Globe className="w-12 h-12 text-green-600 mb-4" />
-            <h3 className="text-xl font-bold mb-3">Carbon Footprint</h3>
-            <p className="text-slate-600">
-              Aviation contributes approximately 2-3% of global carbon emissions. Each flight generates significant CO2,
-              making offset programs essential for sustainability.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-8">
-            <TreePine className="w-12 h-12 text-emerald-600 mb-4" />
-            <h3 className="text-xl font-bold mb-3">Tree Planting Impact</h3>
-            <p className="text-slate-600">
-              One mature tree absorbs approximately 20kg of CO2 annually. Our tree planting initiatives focus on
-              reforestation in India's critical ecosystems.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-8">
-            <Zap className="w-12 h-12 text-yellow-600 mb-4" />
-            <h3 className="text-xl font-bold mb-3">Renewable Energy</h3>
-            <p className="text-slate-600">
-              Solar and wind energy projects reduce reliance on fossil fuels. Our investments support verified renewable
-              energy installations across India.
-            </p>
-          </CardContent>
-        </Card>
+    <div className="mt-8">
+      <h2 className="mb-5 text-xl font-semibold text-white">How Stratos Estimates Impact</h2>
+      <div className="grid gap-4 md:grid-cols-2">
+        {items.map((item) => (
+          <PremiumCard key={item.title} className="p-5">
+            <item.icon className="h-8 w-8 text-cyan-300" />
+            <h3 className="mt-4 text-lg font-semibold text-white">{item.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-400">{item.copy}</p>
+          </PremiumCard>
+        ))}
       </div>
     </div>
   )

@@ -1,115 +1,145 @@
-// Aircraft data with passenger capacity and fuel efficiency rating (1-10, higher is better)
-const AIRCRAFT_DATA: Record<string, { capacity: number; efficiency: number }> = {
-  'B77W': { capacity: 396, efficiency: 7.5 }, // Boeing 777-300ER
-  'B788': { capacity: 330, efficiency: 8.5 }, // Boeing 787-8 Dreamliner
-  'A320': { capacity: 180, efficiency: 7.0 }, // Airbus A320
-  'B738': { capacity: 189, efficiency: 6.5 }, // Boeing 737-800
-  'A321': { capacity: 200, efficiency: 7.2 }, // Airbus A321
-  'A359': { capacity: 325, efficiency: 8.8 }, // Airbus A350-900
-  'A388': { capacity: 525, efficiency: 6.8 }, // Airbus A380-800
-  'B748': { capacity: 410, efficiency: 7.0 }, // Boeing 747-8
-  'A220': { capacity: 135, efficiency: 8.2 }, // Airbus A220-300
-  'E190': { capacity: 100, efficiency: 6.5 }, // Embraer E190
-  'default': { capacity: 180, efficiency: 7.0 }
-};
+import type { Airport } from "@/data/airports"
 
-// Constants for calculations
-const DEFAULT_LOAD_FACTOR = 0.82; // Global average load factor
-const BASE_EMISSION_FACTOR = 0.12; // Base kg CO2 per passenger-km
-const BASIC_OFFSET_COST_PER_TON = 8; // USD
-const PREMIUM_OFFSET_COST_PER_TON = 40; // USD
+export type TravelClass = "economy" | "premium" | "business" | "first"
 
-// Distance-based emission adjustments
-const DISTANCE_FACTORS = {
-  short: { max: 1500, factor: 1.2 }, // Higher emissions per km for short flights
-  medium: { max: 3500, factor: 1.0 },
-  long: { max: Infinity, factor: 0.95 } // More efficient for long-haul
-};
-
-type Coordinates = {
-  latitude: number;
-  longitude: number;
-};
-
-type FlightData = {
-  departure?: Coordinates;
-  arrival?: Coordinates;
-  aircraft?: { iata?: string };
-  flight?: { number_of_passengers?: number };
-};
-
-type EmissionResult = {
-  distance: number; // km
-  estimatedPassengers: number;
-  co2PerPassenger: number; // kg
-  totalCo2: number; // tons
-  basicOffsetCost: number; // USD per passenger
-  premiumOffsetCost: number; // USD per passenger
-  valid: boolean;
-};
-
-function calculateHaversineDistance(start: Coordinates, end: Coordinates): number {
-  const R = 6371; // Earth's radius in km
-  const dLat = toRad(end.latitude - start.latitude);
-  const dLon = toRad(end.longitude - start.longitude);
-  const lat1 = toRad(start.latitude);
-  const lat2 = toRad(end.latitude);
-
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
+export type EmissionsInput = {
+  origin: Airport
+  destination: Airport
+  travelClass: TravelClass
 }
 
-function toRad(degrees: number): number {
-  return degrees * (Math.PI / 180);
-}
-
-function getDistanceFactor(distance: number): number {
-  if (distance <= DISTANCE_FACTORS.short.max) return DISTANCE_FACTORS.short.factor;
-  if (distance <= DISTANCE_FACTORS.medium.max) return DISTANCE_FACTORS.medium.factor;
-  return DISTANCE_FACTORS.long.factor;
-}
-
-export function calculateFlightEmissions(flightData: FlightData): EmissionResult {
-  // Check if we have valid coordinates
-  if (!flightData.departure?.latitude || !flightData.arrival?.latitude) {
-    return {
-      distance: 0,
-      estimatedPassengers: 0,
-      co2PerPassenger: 0,
-      totalCo2: 0,
-      basicOffsetCost: 0,
-      premiumOffsetCost: 0,
-      valid: false
-    };
+export type EmissionsResult = {
+  distanceKm: number
+  travelClass: TravelClass
+  emissionsKg: number
+  emissionsTonnes: number
+  contributionINR: number
+  contributionRangeINR: {
+    low: number
+    high: number
   }
+  treesEquivalent: number
+  householdElectricityDays: number
+  drivingKmEquivalent: number
+  renewableKwhEquivalent: number
+  offsetSuggestions: {
+    treePlantingINR: number
+    renewableEnergyINR: number
+    efficiencyProjectsINR: number
+  }
+  assumptions: {
+    baseEmissionFactorKgPerPassengerKm: number
+    classMultiplier: number
+    emissionFactorKgPerPassengerKm: number
+    contributionBasis: string
+  }
+}
 
-  const distance = calculateHaversineDistance(flightData.departure!, flightData.arrival!);
-  const aircraftType = flightData.aircraft?.iata || 'default';
-  const aircraftData = AIRCRAFT_DATA[aircraftType] || AIRCRAFT_DATA.default;
-  
-  // Adjust emission factor based on aircraft efficiency and distance
-  const distanceFactor = getDistanceFactor(distance);
-  const efficiencyFactor = (10 - aircraftData.efficiency) / 10 + 0.5; // Convert efficiency to multiplier
-  const adjustedEmissionFactor = BASE_EMISSION_FACTOR * distanceFactor * efficiencyFactor;
-  
-  const estimatedPassengers = flightData.flight?.number_of_passengers || 
-    Math.round(aircraftData.capacity * DEFAULT_LOAD_FACTOR);
+const OFFSET_REFERENCE_INR_PER_TONNE = 1400
+const TREE_CO2_ABSORPTION_KG_PER_YEAR = 20
+const GRID_CO2_KG_PER_KWH = 0.7
+const AVG_HOUSEHOLD_KWH_PER_DAY = 4.5
+const AVG_CAR_KG_CO2_PER_KM = 0.12
 
-  const co2PerPassenger = distance * adjustedEmissionFactor;
-  const totalCo2 = (co2PerPassenger * estimatedPassengers) / 1000;
+const CLASS_MULTIPLIERS: Record<TravelClass, number> = {
+  economy: 1,
+  premium: 1.3,
+  business: 1.8,
+  first: 2.4,
+}
 
-  const basicOffsetCost = (co2PerPassenger / 1000) * BASIC_OFFSET_COST_PER_TON;
-  const premiumOffsetCost = (co2PerPassenger / 1000) * PREMIUM_OFFSET_COST_PER_TON;
+export const TRAVEL_CLASS_LABELS: Record<TravelClass, string> = {
+  economy: "Economy",
+  premium: "Premium Economy",
+  business: "Business",
+  first: "First",
+}
+
+function toRadians(degrees: number) {
+  return degrees * (Math.PI / 180)
+}
+
+export function calculateDistanceKm(origin: Airport, destination: Airport) {
+  const radiusKm = 6371
+  const dLat = toRadians(destination.lat - origin.lat)
+  const dLon = toRadians(destination.lon - origin.lon)
+  const lat1 = toRadians(origin.lat)
+  const lat2 = toRadians(destination.lat)
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return radiusKm * c
+}
+
+function getEconomyEmissionFactor(distanceKm: number) {
+  if (distanceKm < 500) return 0.12
+  if (distanceKm < 1500) return 0.105
+  if (distanceKm < 3000) return 0.098
+  return 0.09
+}
+
+function getContributionRange(emissionsKg: number, travelClass: TravelClass) {
+  const base = (emissionsKg / 1000) * OFFSET_REFERENCE_INR_PER_TONNE
+  const classCap = {
+    economy: { min: 79, max: 599 },
+    premium: { min: 119, max: 899 },
+    business: { min: 179, max: 1499 },
+    first: { min: 249, max: 2199 },
+  }[travelClass]
+  const low = clamp(roundToNearest(base * 0.8, 10), classCap.min, classCap.max)
+  const high = clamp(roundToNearest(base * 1.4, 10), classCap.min + 50, classCap.max)
 
   return {
-    distance: Math.round(distance),
-    estimatedPassengers,
-    co2PerPassenger: Math.round(co2PerPassenger * 10) / 10,
-    totalCo2: Math.round(totalCo2 * 10) / 10,
-    basicOffsetCost: Math.round(basicOffsetCost * 100) / 100,
-    premiumOffsetCost: Math.round(premiumOffsetCost * 100) / 100,
-    valid: true
-  };
+    low: Math.min(low, high),
+    high: Math.max(low, high),
+  }
+}
+
+export function calculateAviationEmissions(input: EmissionsInput): EmissionsResult {
+  const distanceKm = calculateDistanceKm(input.origin, input.destination)
+  const classMultiplier = CLASS_MULTIPLIERS[input.travelClass]
+  const emissionFactorKgPerPassengerKm = getEconomyEmissionFactor(distanceKm)
+  const emissionsKg = distanceKm * emissionFactorKgPerPassengerKm * classMultiplier
+  const contributionRangeINR = getContributionRange(emissionsKg, input.travelClass)
+  const contributionINR = roundToNearest((contributionRangeINR.low + contributionRangeINR.high) / 2, 10)
+
+  return {
+    distanceKm: Math.round(distanceKm),
+    travelClass: input.travelClass,
+    emissionsKg: round(emissionsKg, 1),
+    emissionsTonnes: round(emissionsKg / 1000, 3),
+    contributionINR,
+    contributionRangeINR,
+    treesEquivalent: Math.ceil(emissionsKg / TREE_CO2_ABSORPTION_KG_PER_YEAR),
+    householdElectricityDays: Math.ceil(emissionsKg / (GRID_CO2_KG_PER_KWH * AVG_HOUSEHOLD_KWH_PER_DAY)),
+    drivingKmEquivalent: Math.ceil(emissionsKg / AVG_CAR_KG_CO2_PER_KM),
+    renewableKwhEquivalent: Math.ceil(emissionsKg / GRID_CO2_KG_PER_KWH),
+    offsetSuggestions: {
+      treePlantingINR: round(contributionINR * 0.45, 2),
+      renewableEnergyINR: round(contributionINR * 0.35, 2),
+      efficiencyProjectsINR: round(contributionINR * 0.2, 2),
+    },
+    assumptions: {
+      baseEmissionFactorKgPerPassengerKm: 0.105,
+      classMultiplier,
+      emissionFactorKgPerPassengerKm,
+      contributionBasis: "Voluntary climate contribution range using a reference carbon support cost",
+    },
+  }
+}
+
+function round(value: number, decimals: number) {
+  const factor = 10 ** decimals
+  return Math.round(value * factor) / factor
+}
+
+function roundToNearest(value: number, nearest: number) {
+  return Math.round(value / nearest) * nearest
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value))
 }

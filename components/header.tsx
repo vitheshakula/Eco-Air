@@ -1,37 +1,35 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Leaf, Home, Calculator } from "lucide-react"
+import { Home, Calculator, Info } from "lucide-react"
 import { motion } from "framer-motion"
+import { StratosLogo } from "@/components/brand/stratos-logo"
 
 export default function Header() {
   const pathname = usePathname()
   const navItems = [
-    { name: "Home", path: "/", icon: Home },
-    { name: "Impact Calculator", path: "/calculator", icon: Calculator },
+    { name: "Dashboard", path: "/", icon: Home },
+    { name: "Calculator", path: "/calculator", icon: Calculator },
+    { name: "About", path: "/about", icon: Info },
   ]
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg shadow-sm">
-      <nav className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-            <Leaf className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-xl font-bold text-slate-800">EcoAir Initiative</span>
-        </Link>
-        <div className="hidden md:flex items-center gap-6">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-lg">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <StratosLogo />
+        <div className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.path}
-              className={`text-slate-600 hover:text-green-600 transition-colors font-medium relative ${
-                pathname === item.path ? "text-green-600" : ""
+              className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                pathname === item.path ? "text-cyan-200" : "text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
+              <item.icon className="h-4 w-4" />
               {item.name}
               {pathname === item.path && (
-                <motion.div layoutId="underline" className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-green-500" />
+                <motion.div layoutId="underline" className="absolute inset-0 -z-10 rounded-full bg-cyan-400/10" />
               )}
             </Link>
           ))}

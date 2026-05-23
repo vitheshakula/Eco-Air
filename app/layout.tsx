@@ -1,19 +1,10 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import Header from "@/components/header"
 import "./globals.css"
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-})
-
 export const metadata: Metadata = {
-  title: "EcoAir Initiative - Sustainable Aviation",
-  description: "Calculate your flight environmental impact and support verified green projects",
-  generator: "v0.app",
+  title: "Stratos - Clearer Skies",
+  description: "Transparent aviation impact estimation for climate-aware route storytelling.",
 }
 
 export default function RootLayout({
@@ -22,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en">
       <body>{children}</body>
     </html>
   )
